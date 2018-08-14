@@ -1500,11 +1500,11 @@ public class DownloadManager {
                 case COLUMN_LOCAL_URI:
                     return getLocalUri();
                 case COLUMN_LOCAL_FILENAME:
-                    if (!mAccessFilename) {
-                        throw new SecurityException(
-                                "COLUMN_LOCAL_FILENAME is deprecated;"
-                                        + " use ContentResolver.openFileDescriptor() instead");
-                    }
+//                    if (!mAccessFilename) {
+//                        throw new SecurityException(
+//                                "COLUMN_LOCAL_FILENAME is deprecated;"
+//                                        + " use ContentResolver.openFileDescriptor() instead");
+//                    }
                 default:
                     return super.getString(columnIndex);
             }

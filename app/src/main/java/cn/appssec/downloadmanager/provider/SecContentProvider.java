@@ -25,7 +25,6 @@ public class SecContentProvider extends ContentProvider {
 
 
     //match
-
     private static final UriMatcher URI_MATCHER = new UriMatcher(
             UriMatcher.NO_MATCH);
     private static final int DOWNLOAD_INFO = 1;
@@ -60,24 +59,24 @@ public class SecContentProvider extends ContentProvider {
         long[] ids = strArrsToLong(selectionArgs);
 
         Log.d("Q_M", "SecContentProvider---->>查询成功，query" + Arrays.toString(ids));
+        Log.d("Q_M", "SecContentProvider---->>查询成功，uri = " + uri);
 
 
         Cursor cursor = null;
-        try {
-            int flag = URI_MATCHER.match(uri);
-            switch (flag) {
-                case DOWNLOAD_INFO:
-                    DownloadManager downloadManager = new DownloadManager(getContext());
-                    DownloadManager.Query query = new DownloadManager.Query().setFilterById(ids);
-                    cursor = downloadManager.query(query);
-                    break;
-        default:
-            break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        int flag = URI_MATCHER.match(uri);
+
+        Log.d("Q_M", "SecContentProvider---->>查询成功，flag=" + flag);
+
+        switch (flag) {
+            case DOWNLOAD_INFO:
+                DownloadManager downloadManager = new DownloadManager(getContext());
+                DownloadManager.Query query = new DownloadManager.Query().setFilterById(ids);
+                cursor = downloadManager.query(query);
+                break;
+            default:
+                break;
         }
-        Log.i("Q_M", "SecContentProvider---->>查询成功，Count="+cursor.getCount());
+        Log.i("Q_M", "SecContentProvider---->>查询成功，Count=" + cursor.getCount());
 //
 //
 //        DownloadManager downloadManager = new DownloadManager(getContext());
