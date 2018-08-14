@@ -53,6 +53,8 @@
         android:name="android.permission.UPDATE_DEVICE_STATS"
         tools:ignore="ProtectedPermissions"/>
 
+    <permission android:name="cn.appssec.READ" android:protectionLevel="normal"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -149,6 +151,20 @@
                 <action android:name="cn.appssec.downloadmanager.DOWNLOAD"/>
             </intent-filter>
         </service>
+
+        <provider
+            android:authorities="cn.appssec.downloadmanager"
+            android:name=".provider.TestProvider"
+            android:readPermission="cn.appssec.READ"
+            android:exported="true">
+        </provider>
+        <provider
+            android:authorities="cn.appssec.downloadmanager.SecContentProvider"
+            android:name=".provider.SecContentProvider"
+            android:grantUriPermissions="true"
+            android:exported="true">
+        </provider>
+
     </application>
 
 </manifest>

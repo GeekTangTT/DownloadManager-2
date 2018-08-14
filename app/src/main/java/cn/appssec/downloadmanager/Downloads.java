@@ -16,7 +16,6 @@
 
 package cn.appssec.downloadmanager;
 
-import android.app.DownloadManager;
 import android.content.Context;
 //import android.net.NetworkPolicyManager;
 import android.net.Uri;

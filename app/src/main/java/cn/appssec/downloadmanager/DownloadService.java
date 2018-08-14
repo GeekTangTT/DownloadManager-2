@@ -1,13 +1,22 @@
 package cn.appssec.downloadmanager;
 
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
+
+import java.io.FileNotFoundException;
+
+import cn.appssec.downloadmanager.provider.MyProvider;
 
 public class DownloadService extends Service {
     public static final String TAG = "DownloadService";
@@ -20,6 +29,8 @@ public class DownloadService extends Service {
     public void onCreate() {
         Log.d(TAG, " DownloadService onCreate()");
         super.onCreate();
+        MyProvider myProvider =new MyProvider(this);
+        myProvider.startProvider();
     }
 
     @Override
@@ -81,8 +92,14 @@ public class DownloadService extends Service {
             requestTrue.addRequestHeader("Cookie", cookies);
             requestTrue.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             return downloadManager.enqueue(requestTrue);
+            //ContentValues values=request
         }
-
+//        public long enqueue(DownloadManager.Request request) {
+//            ContentValues values = request.toContentValues(mPackageName);
+//            Uri downloadUri = mResolver.insert(Downloads.Impl.CONTENT_URI, values);
+//            long id = Long.parseLong(downloadUri.getLastPathSegment());
+//            return id;
+//        }
         @Override
         public Uri getDownloadUri(long id) throws RemoteException {
             Log.d(TAG, " get download uri");
@@ -95,5 +112,66 @@ public class DownloadService extends Service {
             DownloadManager downloadManager = new DownloadManager(DownloadService.this);
             return downloadManager.getUriForDownloadedFile(id);
         }
+
+//        @Override
+//        public ICursor query(IQuery query) throws RemoteException {
+//            long[] ids=query.getmIds();
+//            Integer mStatusFlags=query.getmStatusFlags();
+//            String mFilterString=query.getmFilterString();
+//
+//            DownloadManager downloadManager = new DownloadManager(DownloadService.this);
+//            DownloadManager.Query Dquery=new DownloadManager.Query();
+////            ContentResolver mResolver=Dquery
+////            Cursor underlyingCursor = Dquery.runQuery(mResolver, UNDERLYING_COLUMNS, mBaseUri);
+////            if (underlyingCursor == null) {
+////                return null;
+////            }
+////            return new CursorTranslator(underlyingCursor, mBaseUri, mAccessFilename);
+//            //return downloadManager.query(query);
+//            return null;
+//        }
+
+        @Override
+        public ParcelFileDescriptor openDownloadedFile(long id) throws RemoteException {
+            //return mResolver.openFileDescriptor(getDownloadUri(id), "r");
+//            public DownloadManager(Context context) {
+//            mResolver = context.getContentResolver();
+            ContentResolver mResolver;
+            mResolver=DownloadService.this.getContentResolver();
+//            ParcelFileDescriptor parcelFileDescriptor=new ParcelFileDescriptor();
+            try {
+                return mResolver.openFileDescriptor(getDownloadUri(id),"r");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public String getMimeTypeForDownloadedFile(long id) throws RemoteException {
+            DownloadManager.Query query = new DownloadManager.Query().setFilterById(id);
+            DownloadManager downloadManager=new DownloadManager(DownloadService.this);
+            Cursor cursor = null;
+            try {
+                //cursor = query(query);
+                //public Cursor query(Query query)
+                cursor=downloadManager.query(query);
+                if (cursor == null) {
+                    return null;
+                }
+                while (cursor.moveToFirst()) {
+                    //context.getContentResolver().insert(uri,contentValues);
+                    return cursor.getString(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_MEDIA_TYPE));
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+            // downloaded file not found or its status is not 'successfully completed'
+            return null;
+        }
+
+
     };
 }

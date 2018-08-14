@@ -3,6 +3,8 @@ package cn.appssec.downloadmanager;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.security.Provider;
+
 /**
  * Author: linqiang
  * Date: 18-7-11
