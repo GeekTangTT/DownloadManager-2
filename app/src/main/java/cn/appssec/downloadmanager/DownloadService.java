@@ -29,8 +29,6 @@ public class DownloadService extends Service {
     public void onCreate() {
         Log.d(TAG, " DownloadService onCreate()");
         super.onCreate();
-        MyProvider myProvider =new MyProvider(this);
-        myProvider.startProvider();
     }
 
     @Override
@@ -70,36 +68,45 @@ public class DownloadService extends Service {
 
     private final IDownloadService.Stub mStub = new IDownloadService.Stub() {
         @Override
-        public long enqueue(AidlRequest request) throws RemoteException {
-            String uri = request.getUri();
-            String destination = request.getDestinationUri();
-            String mimeType = request.getMimeType();
-            Log.d(TAG, " uri : " + uri + "      destination : " + destination + "       mimetype : " + mimeType);
-            DownloadManager downloadManager = new DownloadManager(DownloadService.this);
-            DownloadManager.Request requestTrue = new DownloadManager.Request(uri);
-
-            if (!TextUtils.isEmpty(mimeType)) {
-                requestTrue.setMimeType(mimeType);
-            }
-            if (!TextUtils.isEmpty(destination)) {
-                Uri destinationUri = Uri.parse(destination);
-                requestTrue.setDestinationUri(destinationUri);
-            }
-            requestTrue.setVisibleInDownloadsUi(true);
-            requestTrue.allowScanningByMediaScanner();
-//            request.setDescription(webAddress.getHost());
-            String cookies = CookieManager.getInstance().getCookie(uri);
-            requestTrue.addRequestHeader("Cookie", cookies);
-            requestTrue.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            return downloadManager.enqueue(requestTrue);
-            //ContentValues values=request
+        public long enqueue(Request request) throws RemoteException {
+            //DownloadManager downloadManager=new DownloadManager(DownloadService.this);
+            String mPackageName = DownloadService.this.getPackageName();
+            ContentResolver mResolver = DownloadService.this.getContentResolver();
+            ContentValues values=request.toContentValues(mPackageName);
+            Uri downloadUri=mResolver.insert(Downloads.Impl.CONTENT_URI,values);
+            long id=Long.parseLong(downloadUri.getLastPathSegment());
+            return id;
         }
-//        public long enqueue(DownloadManager.Request request) {
-//            ContentValues values = request.toContentValues(mPackageName);
-//            Uri downloadUri = mResolver.insert(Downloads.Impl.CONTENT_URI, values);
-//            long id = Long.parseLong(downloadUri.getLastPathSegment());
-//            return id;
+
+//        @Override
+//        public long enqueue(AidlRequest request) throws RemoteException {
+//            String uri = request.getUri();
+//            String destination = request.getDestinationUri();
+//
+//            String mimeType = request.getMimeType();
+//            Log.d(TAG, " uri : " + uri + "      destination : " + destination + "       mimetype : " + mimeType);
+//            DownloadManager downloadManager = new DownloadManager(DownloadService.this);
+//            DownloadManager.Request requestTrue = new DownloadManager.Request(uri);
+//
+//            if (!TextUtils.isEmpty(mimeType)) {
+//                requestTrue.setMimeType(mimeType);
+//            }
+//            if (!TextUtils.isEmpty(destination)) {
+//                Uri destinationUri = Uri.parse(destination);
+//                requestTrue.setDestinationUri(destinationUri);
+//                Log.d(TAG, "enqueue:uri--> "+destinationUri);
+//            }
+//            requestTrue.setVisibleInDownloadsUi(true);
+//            requestTrue.allowScanningByMediaScanner();
+////            request.setDescription(webAddress.getHost());
+//            String cookies = CookieManager.getInstance().getCookie(uri);
+//            requestTrue.addRequestHeader("Cookie", cookies);
+//            requestTrue.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//            return downloadManager.enqueue(requestTrue);
+//            //ContentValues values=request
 //        }
+
+
         @Override
         public Uri getDownloadUri(long id) throws RemoteException {
             Log.d(TAG, " get download uri");
@@ -113,29 +120,8 @@ public class DownloadService extends Service {
             return downloadManager.getUriForDownloadedFile(id);
         }
 
-//        @Override
-//        public ICursor query(IQuery query) throws RemoteException {
-//            long[] ids=query.getmIds();
-//            Integer mStatusFlags=query.getmStatusFlags();
-//            String mFilterString=query.getmFilterString();
-//
-//            DownloadManager downloadManager = new DownloadManager(DownloadService.this);
-//            DownloadManager.Query Dquery=new DownloadManager.Query();
-////            ContentResolver mResolver=Dquery
-////            Cursor underlyingCursor = Dquery.runQuery(mResolver, UNDERLYING_COLUMNS, mBaseUri);
-////            if (underlyingCursor == null) {
-////                return null;
-////            }
-////            return new CursorTranslator(underlyingCursor, mBaseUri, mAccessFilename);
-//            //return downloadManager.query(query);
-//            return null;
-//        }
-
         @Override
         public ParcelFileDescriptor openDownloadedFile(long id) throws RemoteException {
-            //return mResolver.openFileDescriptor(getDownloadUri(id), "r");
-//            public DownloadManager(Context context) {
-//            mResolver = context.getContentResolver();
             ContentResolver mResolver;
             mResolver=DownloadService.this.getContentResolver();
 //            ParcelFileDescriptor parcelFileDescriptor=new ParcelFileDescriptor();

@@ -3,17 +3,18 @@ package cn.appssec.downloadmanager;
 import cn.appssec.downloadmanager.AidlRequest;
 // Declare any non-default types here with import statements
 import android.net.Uri;
-import cn.appssec.downloadmanager.IQuery;
 //import android.database.Cursor;
-import cn.appssec.downloadmanager.ICursor;
 import android.os.ParcelFileDescriptor;
 import java.lang.String;
+//import android.app.DownloadManager.Request;
+import cn.appssec.downloadmanager.Request;
 interface IDownloadService {
     /**
      * Demonstrates some basic types that you can use as parameters
      * and return values in AIDL.
      */
-   long enqueue(in AidlRequest request);
+   //long enqueue(in AidlRequest request);
+   long enqueue(in Request request);
 
    Uri getDownloadUri(long id);
 
